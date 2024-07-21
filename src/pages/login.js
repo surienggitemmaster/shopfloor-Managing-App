@@ -2,11 +2,12 @@ import { signIn } from "next-auth/react";
 import { useState } from "react"
 import { Inter } from "next/font/google";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Signin(csrfToken) {
+export default function Signin() {
   const [validationErrors, setValidationErrors] = useState(false);
   const router = useRouter();
 
@@ -14,6 +15,8 @@ export default function Signin(csrfToken) {
     username: "",
     password: ""
   })
+
+  const [loginErrors, setLoginErrors] = useState(false);
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -27,11 +30,17 @@ export default function Signin(csrfToken) {
       setValidationErrors(true);
       return;
     }
-    try {
-      signIn("credentials", { username: credentials.username, password: credentials.password, callbackUrl: '/' })
-    } catch (error) {
-      console.log(error);
-    }
+    const toastId = toast.loading("Signing in...");
+    signIn("credentials", { username: credentials.username, password: credentials.password, callbackUrl: '/', redirect: false })
+      .then((res) => {
+        if (res.ok) {
+          toast.success("Sign In Successfull !");
+          router.push('/');
+        }
+        else toast.error("Invalid Credentials...");
+      }).catch((err) => {
+        toast.error("Something went wrong...");
+      }).finally(() => toast.dismiss(toastId));
   }
 
   return (
@@ -40,7 +49,7 @@ export default function Signin(csrfToken) {
         <div className="w-full bg-white border border-slate-300 rounded-md shadow-sm md:mt-0 sm:max-w-md xl:p-0">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h3 className="mb-6 text-2xl font-bold leading-tight text-center">
-              Heading to be edited
+              ShopFloor Managing App
             </h3>
             <h1 className="text-base text-gray-600 font-semibold text-center">
               Enter credentials to sign in
