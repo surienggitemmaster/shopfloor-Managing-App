@@ -58,7 +58,7 @@ export default function Signin() {
               {/* <input name="csrfToken" type="hidden" defaultValue={csrfToken} /> */}
               <div>
                 <label htmlFor="username" className="block mb-2 text-sm font-medium ">Username</label>
-                <input type="text" name="username" id="username" value={credentials.username} onChange={handleChange} className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="crater90" />
+                <input type="text" name="username" id="username" value={credentials.username} onChange={handleChange} className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="username" />
 
               </div>
               <div>
