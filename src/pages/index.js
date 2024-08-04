@@ -35,7 +35,7 @@ export default function Home() {
   }, [])
 
   const handleClick = (id) => {
-    const propsToPass = { name: 'John', age: 30 };
+    const propsToPass = { id: id };
     router.push({
       pathname: `/product`,
       query: propsToPass,
