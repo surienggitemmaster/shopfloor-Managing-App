@@ -1,13 +1,22 @@
 import { useRouter } from 'next/router'
 import React, { useState, useRef, useEffect } from 'react'
+import { useSession } from "next-auth/react";
 import axios from 'axios';
+
 
 const ProductPage = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   let { id } = router?.query
   const [sidebarOpenForMobile, setSidebarOpenForMobile] = useState(false);
   const refForSidebar = useRef(null);
   const [folderId, setFolderId] = useState(null);
+
+  useEffect(() => {
+    if ((status != "loading") && (!session)) {
+      router.push('/login'); // Redirect if not admin
+    }
+  }, [session, status]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleOutsideClick);
