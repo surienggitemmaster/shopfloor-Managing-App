@@ -1,22 +1,10 @@
-import { google } from 'googleapis';
-import path from 'path';
-import fs from 'fs';
-
-const keyFilePath = path.join(process.cwd(), 'service-account.json');
-const credentials = JSON.parse(fs.readFileSync(keyFilePath, 'utf8'));
-
-const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/drive'],
-});
-
-const drive = google.drive({ version: 'v3', auth });
+import { getDriveService } from "../../utils/googledrive";
 
 const FOLDER_ID = '1_R8sr35A2NHxLo-x9saCnMZqPS3iDVQn'; // Replace with your folder ID
 
 export default async function handler(req, res) {
+    const drive = await getDriveService()
     const { method, body } = req;
-
     try {
         switch (method) {
             case 'GET':
@@ -24,6 +12,7 @@ export default async function handler(req, res) {
                     q: `'${FOLDER_ID}' in parents`,
                     fields: 'files(id, name, mimeType)',
                 });
+
                 res.status(200).json(listResponse.data.files);
                 break;
             case 'POST':
