@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Header from "@/components/Header";
 import axios from 'axios';
+import Loader from "@/components/Loader";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -62,7 +63,7 @@ export default function Home() {
             </form>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-500">
+            {records ? (<table className="w-full text-sm text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                 <tr>
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Product Id</th>
@@ -87,7 +88,7 @@ export default function Home() {
                   )
                 })}
               </tbody>
-            </table>
+            </table>) : <Loader />}
           </div>
         </div>
       </div>
