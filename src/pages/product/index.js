@@ -11,6 +11,7 @@ const ProductPage = () => {
   const [sidebarOpenForMobile, setSidebarOpenForMobile] = useState(false);
   const refForSidebar = useRef(null);
   const [folderId, setFolderId] = useState(null);
+  const [Files, setFiles] = useState(null);
 
   useEffect(() => {
     if ((status != "loading") && (!session)) {
@@ -24,6 +25,20 @@ const ProductPage = () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   });
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const response = await axios.get(`/api/drive?&folderId=${folderId}`);
+        setFiles(response?.data)
+      } catch (error) {
+        console.error('Error fetching Excel data:', error);
+      }
+    }
+    if (folderId !== null && (Files === null || Files === undefined)) {
+      fetch()
+    }
+  }, [folderId])
 
   useEffect(() => {
     const fetch = async () => {
