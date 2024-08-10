@@ -3,6 +3,9 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Header from "@/components/Header";
+import axios from 'axios';
+import Loader from "@/components/Loader";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,6 +13,7 @@ export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [searchInput, setSearchInput] = useState();
+  const [records, setRecords] = useState(null);
 
   useEffect(() => {
     if ((status != "loading") && (!session)) {
@@ -17,34 +21,31 @@ export default function Home() {
     }
   }, [session, status]);
 
+  useEffect(() => {
+    const fetchExcelData = async () => {
+      try {
+        const response = await axios.get(`/api/xlsrecord?&fileId=12q5sIXMZbnYivXmMLfIspb73_i0MuDFsY_gMRty4QRI&mimeType=application/vnd.google-apps.spreadsheet`);
+        setRecords(response.data);
+      } catch (error) {
+        console.error('Error fetching Excel data:', error);
+      }
+    }
+    if (records === null || records === undefined) {
+      fetchExcelData();
+    }
+  }, [])
+
+  const handleClick = (id) => {
+    const propsToPass = { id: id };
+    router.push({
+      pathname: `/product`,
+      query: propsToPass,
+    });
+  };
+
   const handleSearch = () => {
     console.log("search triggered")
   }
-
-
-  const data = [{
-    productId: '1235CD',
-    itemName: 'manifold',
-    sellingRate: 25,
-    presentStock: 250
-  }, {
-    productId: '573CD',
-    itemName: 'screw',
-    sellingRate: 67,
-    presentStock: 10
-  }, {
-    productId: '35KA',
-    itemName: 'hammer',
-    sellingRate: 560,
-    presentStock: 200
-
-  }, {
-    productId: '439234A',
-    itemName: 'driver plate',
-    sellingRate: 90,
-    presentStock: 50
-  }
-  ]
 
   return (
     <main className={`flex-col items-center justify-center min-h-screen bg-gradient-to-tr from-gray-200 to-gray-400 ${inter.className}`}>
@@ -63,7 +64,7 @@ export default function Home() {
             <button onClick={() => router.push(`/product/add`)} className="bg-blue-300 rounded-md border-blue-400 py-1.5 px-2">Add Product</button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-500">
+            {records ? (<table className="w-full text-sm text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                 <tr>
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Product Id</th>
@@ -73,22 +74,22 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((row) => {
+                {records?.map((row) => {
                   return (
-                    <tr onClick={() => router.push(`/product/${row.productId}`)} key={row.productId} className="border-b hover:bg-gray-100 cursor-pointer">
+                    <tr onClick={() => handleClick(row.PRODUCT_ID)} key={row.PRODUCT_ID} className="border-b hover:bg-gray-100 cursor-pointer">
 
                       <th scope='row' className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
-                        {row.productId}
+                        {row.PRODUCT_ID}
                       </th>
-                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.itemName} </td>
-                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.sellingRate} </td>
-                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.presentStock} </td>
+                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.PRODUCT_NAME} </td>
+                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.SELLING_PRICE} </td>
+                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.PRESENT_STOCK} </td>
 
                     </tr>
                   )
                 })}
               </tbody>
-            </table>
+            </table>) : <Loader />}
           </div>
         </div>
       </div>
