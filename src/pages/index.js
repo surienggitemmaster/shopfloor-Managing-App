@@ -52,8 +52,8 @@ export default function Home() {
       <Header />
       <div className='py-10'>
         <div className='max-w-4xl mx-auto bg-white md:rounded-md shadow-md'>
-          <div className='p-5'>
-            <form onSubmit={handleSearch} className='flex items-center space-x-2 rounded-md border border-gray-200 bg-gray-100'>
+          <div className='p-5 flex gap-5'>
+            <form onSubmit={handleSearch} className='flex flex-auto items-center space-x-2 rounded-md border border-gray-200 bg-gray-100'>
               <input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className='w-full block p-2 bg-gray-100 outline-none text-sm' type='text' placeholder='Search by Product ID or Product Name...' />
               <button type='submit'>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-600 mr-2">
@@ -61,6 +61,7 @@ export default function Home() {
                 </svg>
               </button>
             </form>
+            <button onClick={() => router.push(`/product/add`)} className="bg-blue-300 rounded-md border-blue-400 py-1.5 px-2">Add Product</button>
           </div>
           <div className="overflow-x-auto">
             {records ? (<table className="w-full text-sm text-left text-gray-500">
