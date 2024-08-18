@@ -14,6 +14,7 @@ export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [searchInput, setSearchInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [records, setRecords] = useState(null);
   //keeping track of all excel data
   const [excelData, setExcelData] = useState([]);
@@ -32,6 +33,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchExcelData = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get(`/api/xlsrecord?&fileId=12q5sIXMZbnYivXmMLfIspb73_i0MuDFsY_gMRty4QRI&mimeType=application/vnd.google-apps.spreadsheet`);
         setData(response.data);
@@ -39,6 +41,7 @@ export default function Home() {
       } catch (error) {
         console.error('Error fetching Excel data:', error);
       }
+      setIsLoading(false);
     }
     fetchExcelData();
   }, [])
@@ -47,7 +50,6 @@ export default function Home() {
   useEffect(() => {
     // Update records based on current page when data or currentPage changes
     setTotalPages(Math.ceil(data?.length / itemsPerPage));
-    //setTotalPages(25);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     setRecords(data?.slice(indexOfFirstItem, indexOfLastItem));
@@ -60,6 +62,12 @@ export default function Home() {
       sellingPrice: row.SELLING_PRICE,
       presentStock: row.PRESENT_STOCK
     })
+    localStorage.setItem('productData', JSON.stringify({
+      productId: row.PRODUCT_ID,
+      productName: row.PRODUCT_NAME,
+      sellingPrice: row.SELLING_PRICE,
+      presentStock: row.PRESENT_STOCK
+    }));
     router.push({
       pathname: `/product/${row.PRODUCT_ID}`,
       query: {
@@ -104,7 +112,7 @@ export default function Home() {
             <button onClick={() => router.push(`/product/add`)} className="bg-blue-500 rounded-md border-blue-400 py-1.5 px-2 text-sm text-white">Add Product</button>
           </div>
           <div className="overflow-x-auto">
-            {records ? (
+            {!isLoading && records ? (
               <>
                 <table className="w-full text-sm text-left text-gray-500">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-200">
