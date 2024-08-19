@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 import path from 'path';
 import fs from 'fs';
+import XLSX from 'xlsx';
 
 const keyFilePath = path.join(process.cwd(), 'service-account.json');
 const credentials = JSON.parse(fs.readFileSync(keyFilePath, 'utf8'));
@@ -10,6 +11,8 @@ const auth = new google.auth.GoogleAuth({
     scopes: ['https://www.googleapis.com/auth/drive'],
 });
 
+export const mainFolder = "1_R8sr35A2NHxLo-x9saCnMZqPS3iDVQn"
+export const xlsxFile = "12q5sIXMZbnYivXmMLfIspb73_i0MuDFsY_gMRty4QRI"
 
 export const getDriveService = async () => {
     return google.drive({ version: 'v3', auth });
@@ -115,3 +118,78 @@ export const updateFile = async (fileId, filePath, mimeType) => {
     }
 };
 
+export const removeRowByProductId = async (filePath, productId) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    const productIdIndex = sheetData[0].indexOf('PRODUCT_ID');
+
+    if (productIdIndex === -1) {
+        throw new Error('productId column not found');
+    }
+
+    // Filter out the row where productId equals the specified value
+    const filteredData = sheetData.filter(row => row[productIdIndex] !== productId);
+
+    // Clear the sheet and write the filtered data back to it
+    const newSheet = XLSX.utils.aoa_to_sheet(filteredData);
+    workbook.Sheets[workbook.SheetNames[0]] = newSheet;
+
+    XLSX.writeFile(workbook, filePath);
+};
+
+// Function to download file from Google Drive
+export const downloadXLS = async (fileId, destination) => {
+    const drive = await getDriveService()
+    const dest = fs.createWriteStream(destination);
+    const response = await downloadFile(fileId, "application/vnd.google-apps.spreadsheet")
+
+    return new Promise((resolve, reject) => {
+        response
+            .on('end', () => resolve(destination))
+            .on('error', reject)
+            .pipe(dest);
+    });
+};
+
+// Function to upload file to Google Drive
+export const uploadxl = async (filePath, mimeType, fileId) => {
+    const drive = await getDriveService()
+    const media = {
+        mimeType: mimeType,
+        body: fs.createReadStream(filePath),
+    };
+
+    const response = await drive.files.update({
+        fileId: fileId,
+        media: media,
+        fields: 'id',
+    });
+
+    return response.data.id;
+};
+
+// Function to modify the xlsx file
+export const modifyXlsx = async (filePath, productId, productName, sellingPrice, presentStock) => {
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const range = XLSX.utils.decode_range(sheet['!ref']);
+    const lastRow = range.e.r; // Last row index (0-based)
+
+    // Add a new row of data
+    const newRow = [productId, productName, sellingPrice, presentStock];
+    const newRowIndex = lastRow + 1;
+
+    // Create a new row and shift the previous range
+    newRow.forEach((value, i) => {
+        sheet[XLSX.utils.encode_cell({ r: newRowIndex, c: i })] = { v: value };
+    });
+
+    // Update the range to include the new row
+    range.e.r = newRowIndex;
+    sheet['!ref'] = XLSX.utils.encode_range(range);
+
+    XLSX.writeFile(workbook, filePath);
+};
