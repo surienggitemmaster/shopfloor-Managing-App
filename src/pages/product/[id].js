@@ -1,4 +1,3 @@
-
 import { useRouter } from 'next/router'
 import React, { useState, useRef, useEffect } from 'react'
 import { useSession } from "next-auth/react";
@@ -7,8 +6,6 @@ import PDFViewer from '@/components/Pdfviewer';
 import Loader from '@/components/Loader';
 import FileInput from '@/components/FileInput';
 import { Inter } from "next/font/google";
-import { useForm } from 'react-hook-form';
-import { useProductContext } from '@/contexts/ProductContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -131,27 +128,6 @@ const ProductPage = () => {
             </div>
           ) : (
             <></>
-            // <div className='border text-sm bg-white border-gray-300 rounded-md px-1 py-2 shadow-md'>
-            //   <div className='p-1 space-x-2 flex items-center justify-between overflow-hidden'>
-            //     <span className='flex-none w-24 font-semibold text-gray-800'>Product Id</span>
-            //     <input
-            //       {...register('productId', { required: true })}
-            //       className='w-full block border border-gray-300 rounded-md p-1'
-            //     />
-            //   </div>
-            //   <div className='p-1 space-x-2 flex items-center justify-between'>
-            //     <span className='flex-none w-24 font-semibold text-gray-800'>Item Name</span>
-            //     <input {...register('productName')} className='w-full block border border-gray-300 rounded-md p-1' />
-            //   </div>
-            //   <div className='p-1 space-x-2 flex items-center justify-between'>
-            //     <span className='flex-none w-24 font-semibold text-gray-800'>Selling Rate</span>
-            //     <input {...register('sellingRate')} className='w-full block border border-gray-300 rounded-md p-1' />
-            //   </div>
-            //   <div className='p-1 space-x-2 flex items-center justify-between'>
-            //     <span className='flex-none w-24 font-semibold text-gray-800'>Present Stock</span>
-            //     <input {...register('presentStock')} className='w-full block border border-gray-300 rounded-md p-1' />
-            //   </div>
-            // </div>
           )
           }
 

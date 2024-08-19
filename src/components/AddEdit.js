@@ -2,6 +2,7 @@
 import { Inter } from 'next/font/google';
 import React from 'react'
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,9 +11,25 @@ function AddEdit({ productData, productFiles, edit }) {
         defaultValues: { ...productData, ...productFiles }
     });
 
-    const onSubmit = (data) => {
-        console.log(data);
-    }
+    const onSubmit = async (data) => {
+        const formData = new FormData();
+        const obj = ['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint']
+        obj.map((item) => {
+            if (data?.[item]?.[0]) {
+                formData.append(item, data?.[item]?.[0])
+            }
+        })
+        try {
+            const response = await fetch(`/api/item/add?folderName=${data.productId}&productName=${data.productName}&sellingPrice=${data.sellingPrice}&presentStock=${data.presentStock}`, {
+                method: 'POST',
+                body: formData,
+            })
+
+        } catch (error) {
+            console.error('Error:', error.response ? error.response.data : error.message);
+        }
+        console.log("------", (data.photo))
+    };
 
     const camelToTitleCase = (str) => {
         return str
@@ -87,7 +104,7 @@ function AddEdit({ productData, productFiles, edit }) {
                     </div>
 
                     {/* File Upload Fields */}
-                    {['photos', 'drawing', 'process', 'sellerDetails', 'purchaseDetails', 'inspectionDetails', 'customerComplaint'].map((field, index) => (
+                    {['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint'].map((field, index) => (
                         <div key={index}>
                             <label htmlFor={field} className="block text-sm font-medium text-gray-700">
                                 {camelToTitleCase(field)}
