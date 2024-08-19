@@ -21,19 +21,12 @@ export const listFiles = async () => {
     return res.data.files;
 };
 
-export const uploadFile = async (file) => {
-    const drive = await getDriveService();
-    const res = await drive.files.create({
-        resource: { name: file.originalname },
-        media: { mimeType: file.mimetype, body: file.buffer },
-        fields: 'id',
-    });
-    return res.data;
-};
 
-export const deleteFile = async (fileId) => {
+export const deleteObject = async (fileId) => {
     const drive = await getDriveService();
-    await drive.files.delete({ fileId });
+    const response = await drive.files.delete({
+        fileId: fileId,
+    });
 };
 
 export const downloadFile = async (fileId, mimeType) => {
@@ -49,3 +42,76 @@ export const downloadFile = async (fileId, mimeType) => {
 
     return response.data;
 };
+
+
+export const createFolder = async (folderName) => {
+    const fileMetadata = {
+        name: folderName,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [FOLDER_ID],
+    };
+    const drive = await getDriveService();
+
+    try {
+        const file = await drive.files.create({
+            resource: fileMetadata,
+            fields: 'id',
+        });
+        console.log('Folder ID:', file.data.id);
+        return file.data.id;
+    } catch (error) {
+        console.error('Error creating folder:', error);
+        throw error;
+    }
+};
+
+export const uploadFile = async (folderId, filePath, mimeType, newFileName) => {
+
+    console.log(folderId, filePath, mimeType, newFileName);
+    const fileMetadata = {
+        name: newFileName || path.basename(filePath),
+        parents: [folderId],
+    };
+
+    const media = {
+        mimeType: mimeType,
+        body: fs.createReadStream(filePath),
+    };
+    const drive = await getDriveService();
+
+    try {
+        const file = await drive.files.create({
+            resource: fileMetadata,
+            media: media,
+            fields: 'id',
+        });
+        console.log('File ID:', file.data.id);
+        return file.data.id;
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        throw error;
+    }
+};
+
+export const updateFile = async (fileId, filePath, mimeType) => {
+    const media = {
+        mimeType: mimeType,
+        body: fs.createReadStream(filePath),
+    };
+    const drive = await getDriveService();
+
+    try {
+        const file = await drive.files.update({
+            fileId: fileId,
+            media: media,
+            fields: 'id',
+        });
+
+        console.log('Updated File ID:', file.data.id);
+        return file.data.id;
+    } catch (error) {
+        console.error('Error updating file:', error);
+        throw error;
+    }
+};
+

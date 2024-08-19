@@ -1,4 +1,3 @@
-
 import { useRouter } from 'next/router'
 import React, { useState, useRef, useEffect } from 'react'
 import { useSession } from "next-auth/react";
@@ -7,8 +6,6 @@ import PDFViewer from '@/components/Pdfviewer';
 import Loader from '@/components/Loader';
 import FileInput from '@/components/FileInput';
 import { Inter } from "next/font/google";
-import { useForm } from 'react-hook-form';
-import { useProductContext } from '@/contexts/ProductContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -136,6 +133,7 @@ const ProductPage = () => {
           <ul className="space-y-2 font-medium mt-2 text-sm">
             <li onClick={() => handleFileId({ key: 'photo', value: files?.PHOTO })}>
               <a className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-white ${(activeTab === 'photo') && 'bg-white dark:bg-gray-700'} dark:hover:bg-gray-700 group cursor-pointer`}>
+
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
                   <path fillRule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clipRule="evenodd" />
                 </svg>
