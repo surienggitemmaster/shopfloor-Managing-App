@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import axios from 'axios';
 import PDFViewer from '@/components/Pdfviewer';
 import Loader from '@/components/Loader';
-import FileInput from '@/components/FileInput';
+import toast from 'react-hot-toast';
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -85,11 +85,18 @@ const ProductPage = () => {
   };
 
   const onDeleteProduct = (folderName) => {
-    console.log("SADASDA", folderName)
+    console.log("SADASDA", folderName);
+    const toastId = toast.loading('Deleting item...')
     fetch(`/api/item/edit?folderName=${folderName}`, {
       method: 'DELETE',
-    })
-    router.push('/')
+    }).then((res) => {
+      if (res.status === 200) {
+        toast.success('Deleted successfully!');
+        router.push('/');
+      }
+    }).catch((err) => {
+      toast.error('Something went wrong.');
+    }).finally(() => toast.dismiss(toastId));
   }
 
   const handleFileId = (e) => {

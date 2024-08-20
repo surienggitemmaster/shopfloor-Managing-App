@@ -1,7 +1,9 @@
 
 import { Inter } from 'next/font/google';
+import { useRouter } from 'next/router';
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
+import toast from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,6 +19,7 @@ function AddEdit({ productData, edit }) {
     }
   }, [productData]);
 
+  const router = useRouter();
 
   const onSubmit = async (data) => {
     if (edit) {
@@ -27,14 +30,21 @@ function AddEdit({ productData, edit }) {
           formData.append(item, data?.[item]?.[0])
         }
       })
+      const toastId = toast.loading("Updating item...");
       try {
         const response = await fetch(`/api/item/edit?folderName=${data.productId}&productName=${data.productName}&sellingPrice=${data.sellingPrice}&presentStock=${data.presentStock}`, {
           method: 'PUT',
           body: formData,
         })
-
+        if (response.status === 200) {
+          toast.success('Item modified successfully!');
+          router.push('/');
+        }
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
+        toast.error('Something went wrong.')
+      } finally {
+        toast.dismiss(toastId);
       }
     } else {
       const formData = new FormData();
@@ -44,14 +54,21 @@ function AddEdit({ productData, edit }) {
           formData.append(item, data?.[item]?.[0])
         }
       })
+      const toastId = toast.loading("Adding new item...");
       try {
         const response = await fetch(`/api/item/add?folderName=${data.productId}&productName=${data.productName}&sellingPrice=${data.sellingPrice}&presentStock=${data.presentStock}`, {
           method: 'POST',
           body: formData,
         })
-
+        if (response.status === 200) {
+          toast.success('Item added successfully!');
+          router.push('/');
+        }
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
+        toast.error('Something went wrong.')
+      } finally {
+        toast.dismiss(toastId);
       }
     }
   };
