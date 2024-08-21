@@ -40,6 +40,9 @@ function AddEdit({ productData, edit }) {
           toast.success('Item modified successfully!');
           router.push('/');
         }
+        if (response.status === 500) {
+          toast.error('Something went wrong.!');
+        }
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
         toast.error('Something went wrong.')
@@ -63,6 +66,9 @@ function AddEdit({ productData, edit }) {
         if (response.status === 200) {
           toast.success('Item added successfully!');
           router.push('/');
+        }
+        if (response.status === 500) {
+          toast.error('Something went wrong.!');
         }
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
@@ -147,7 +153,7 @@ function AddEdit({ productData, edit }) {
           </div>
 
           {/* File Upload Fields */}
-          {['photo', 'drawing', 'process', 'sellerDetails', 'purchaseDetails', 'inspectionDetails', 'customerComplaint'].map((field, index) => (
+          {['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint'].map((field, index) => (
             <div key={index}>
               <label htmlFor={field} className="block text-sm font-medium text-gray-700">
                 {camelToTitleCase(field)}

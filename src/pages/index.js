@@ -35,7 +35,7 @@ export default function Home() {
     const fetchExcelData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`/api/xlsrecord?&fileId=12q5sIXMZbnYivXmMLfIspb73_i0MuDFsY_gMRty4QRI&mimeType=application/vnd.google-apps.spreadsheet`);
+        const response = await axios.get(`/api/xlsrecord?&fileId=1aPun_wNfE1s8E3BHzwq9WImBVvKdxHgcdxYiO-0-sNk&mimeType=application/vnd.google-apps.spreadsheet`);
         setData(response.data);
         setExcelData(response.data);
       } catch (error) {

@@ -53,7 +53,7 @@ export default async function handler(req, res) {
             const fileMetadata = {
                 name: folderName,
                 mimeType: 'application/vnd.google-apps.folder',
-                parents: ['1_R8sr35A2NHxLo-x9saCnMZqPS3iDVQn'],
+                parents: [mainFolder],
             };
             const file = await drive.files.create({
                 requestBody: fileMetadata,
@@ -80,8 +80,6 @@ export default async function handler(req, res) {
         try {
             const { folderName } = req?.query;
 
-            console.log("SADASd", folderName)
-
             const listResponse = await drive.files.list({
                 q: `'${mainFolder}' in parents`,
                 fields: 'files(id, name, mimeType)',
@@ -107,7 +105,7 @@ export default async function handler(req, res) {
             // Update the existing file in Google Drive
             const deletefolder = await deleteObject(folderId);
 
-            res.status(200).json({ message: 'File updated successfully', sad: deletefolder, fileId: fileId });
+            res.status(200).json({ message: 'File Deleted successfully' });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

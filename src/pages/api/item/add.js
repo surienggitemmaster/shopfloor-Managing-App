@@ -1,4 +1,4 @@
-import { getDriveService, uploadFile, downloadXLS, uploadxl, modifyXlsx, xlsxFile } from "../../../utils/googledrive";
+import { getDriveService, uploadFile, downloadXLS, uploadxl, modifyXlsx, xlsxFile, mainFolder } from "../../../utils/googledrive";
 import { IncomingForm } from 'formidable';
 import path from 'path';
 import fs from 'fs';
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
             const fileMetadata = {
                 name: folderName,
                 mimeType: 'application/vnd.google-apps.folder',
-                parents: ['1_R8sr35A2NHxLo-x9saCnMZqPS3iDVQn'],
+                parents: [mainFolder],
             };
             const file = await drive.files.create({
                 requestBody: fileMetadata,

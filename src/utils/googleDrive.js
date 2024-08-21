@@ -11,8 +11,8 @@ const auth = new google.auth.GoogleAuth({
     scopes: ['https://www.googleapis.com/auth/drive'],
 });
 
-export const mainFolder = "1_R8sr35A2NHxLo-x9saCnMZqPS3iDVQn"
-export const xlsxFile = "12q5sIXMZbnYivXmMLfIspb73_i0MuDFsY_gMRty4QRI"
+export const mainFolder = "1QRte-54NhRbh_SCtofIor6ccBA_8aVYT"
+export const xlsxFile = "1aPun_wNfE1s8E3BHzwq9WImBVvKdxHgcdxYiO-0-sNk"
 
 export const getDriveService = async () => {
     return google.drive({ version: 'v3', auth });

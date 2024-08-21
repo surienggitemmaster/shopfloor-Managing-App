@@ -41,7 +41,7 @@ const ProductPage = () => {
     const fetchItemFolderId = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`/api/drive?&folderId=1_R8sr35A2NHxLo-x9saCnMZqPS3iDVQn`);
+        const response = await axios.get(`/api/drive?&folderId=1QRte-54NhRbh_SCtofIor6ccBA_8aVYT`);
         response?.data.map((file) => {
           if (file?.name === id) {
             setFolderId(file.id);
@@ -85,7 +85,6 @@ const ProductPage = () => {
   };
 
   const onDeleteProduct = (folderName) => {
-    console.log("SADASDA", folderName);
     const toastId = toast.loading('Deleting item...')
     fetch(`/api/item/edit?folderName=${folderName}`, {
       method: 'DELETE',
@@ -102,7 +101,6 @@ const ProductPage = () => {
   const handleFileId = (e) => {
     setSelectfileId(e.value)
     setActiveTab(e.key)
-    console.log(expandOtherFiles);
   }
 
   // to filter other files in the files state
@@ -112,6 +110,7 @@ const ProductPage = () => {
     "PHOTO",
     "SELLER_DETAILS",
     "PURCHASE_DETAILS",
+    "INSPECTION_DETAILS",
     "PROCESS"
   ];
 
