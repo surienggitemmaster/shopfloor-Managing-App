@@ -109,7 +109,8 @@ export default function Home() {
                 </svg>
               </button>
             </form>
-            <button onClick={() => router.push(`/product/add`)} className="bg-blue-500 rounded-md border-blue-400 py-1.5 px-2 text-sm text-white">Add Product</button>
+            {session.user?.name == 'Admin User' &&
+              <button onClick={() => router.push(`/product/add`)} className="bg-blue-500 rounded-md border-blue-400 py-1.5 px-2 text-sm text-white">Add Product</button>}
           </div>
           <div className="overflow-x-auto">
             {!isLoading && records ? (

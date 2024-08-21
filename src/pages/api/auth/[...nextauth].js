@@ -25,12 +25,6 @@ export const authOptions = {
             isAdmin: false
           }
         }
-        // const res = await fetch("/your/endpoint", {
-        //   method: 'POST',
-        //   body: JSON.stringify(credentials),
-        //   headers: { "Content-Type": "application/json" }
-        // })
-        // const user = await res.json()
         return user;
       }
     })

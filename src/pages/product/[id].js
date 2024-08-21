@@ -259,9 +259,11 @@ const ProductPage = () => {
           <PDFViewer fileID={selectfileId} />
         )}
         <div className='flex justify-center items-center space-x-2 p-2 text-sm text-gray-900 bg-gray-200 dark:bg-gray-800 border-t dark:border-gray-500 dark:text-white'>
-          <button onClick={() => router.push('/product/add')} className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Add</button>
-          <button onClick={() => router.push('/product/edit')} className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Edit</button>
-          <button onClick={() => onDeleteProduct(id)} className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Delete</button>
+          {session.user?.name == 'Admin User' && <>
+            <button onClick={() => router.push('/product/add')} className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Add</button>
+            <button onClick={() => router.push('/product/edit')} className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Edit</button>
+            <button onClick={() => onDeleteProduct(id)} className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Delete</button>
+          </>}
           <button className='px-2 py-1 bg-white dark:text-gray-900 rounded-md border border-gray-500'>Download</button>
         </div>
       </div>
