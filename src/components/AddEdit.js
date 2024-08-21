@@ -100,6 +100,7 @@ function AddEdit({ productData, edit }) {
               type="text"
               id="product-id"
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              disabled={edit}  
             />
             {errors.productId && <span className="text-red-500 text-sm mt-1">{errors.productId.message}</span>}
           </div>
@@ -121,7 +122,6 @@ function AddEdit({ productData, edit }) {
             </label>
             <input
               {...register("sellingPrice", {
-                required: "please enter a valid price.",
                 pattern: {
                   value: /^\d+(\.\d{1,2})?$/,
                   message: "only numbers allowed upto 2 decimal places."
@@ -139,7 +139,6 @@ function AddEdit({ productData, edit }) {
             </label>
             <input
               {...register("presentStock", {
-                required: "please enter stock.",
                 pattern: {
                   value: /^\d+$/,
                   message: "only numbers are allowed."

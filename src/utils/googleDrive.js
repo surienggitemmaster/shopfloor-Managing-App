@@ -141,15 +141,25 @@ export const removeRowByProductId = async (filePath, productId) => {
 
 // Function to download file from Google Drive
 export const downloadXLS = async (fileId, destination) => {
-    const drive = await getDriveService()
+    const drive = await getDriveService();
     const dest = fs.createWriteStream(destination);
-    const response = await downloadFile(fileId, "application/vnd.google-apps.spreadsheet")
+    const response = await downloadFile(fileId, "application/vnd.google-apps.spreadsheet");
 
     return new Promise((resolve, reject) => {
-        response
-            .on('end', () => resolve(destination))
-            .on('error', reject)
-            .pipe(dest);
+        // Pipe the response stream to the file
+        response.pipe(dest);
+
+        // Resolve the promise once the stream has ended
+        dest.on('finish', () => {
+            console.log('Download complete.');
+            resolve(destination);
+        });
+
+        // Reject the promise on stream error
+        dest.on('error', (err) => {
+            console.error('Error writing to file.', err);
+            reject(err);
+        });
     });
 };
 
