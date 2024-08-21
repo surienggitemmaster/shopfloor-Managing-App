@@ -1,4 +1,4 @@
-import { getDriveService, uploadFile, downloadXLS, uploadxl, removeRowByProductId, deleteObject, modifyXlsx, mainFolder, xlsxFile } from "../../../utils/googledrive";
+import { getDriveService, uploadFile, downloadXLS, uploadxl, removeRowByProductId, deleteObject, modifyXlsx, mainFolder, xlsxFile, updateFile } from "../../../utils/googledrive";
 import { IncomingForm } from 'formidable';
 import path from 'path';
 import fs from 'fs';
@@ -36,7 +36,11 @@ export default async function handler(req, res) {
             }
         })
 
-        await deleteObject(folderId);
+        const FileResponse = await drive.files.list({
+            q: `'${folderId}' in parents`,
+            fields: 'files(id, name, mimeType)',
+        });
+
         const filePath = path.join(process.cwd(), 'temp.xlsx');
 
         // Step 1: Download file from Google Drive
@@ -50,15 +54,6 @@ export default async function handler(req, res) {
         const mimeType = 'application/vnd.google-apps.spreadsheet';
         await uploadxl(filePath, mimeType, xlsxFile);
         try {
-            const fileMetadata = {
-                name: folderName,
-                mimeType: 'application/vnd.google-apps.folder',
-                parents: [mainFolder],
-            };
-            const file = await drive.files.create({
-                requestBody: fileMetadata,
-                fields: 'id',
-            });
             form.parse(req, (err, fields, files) => {
                 if (err) {
                     console.log(err)
@@ -66,9 +61,14 @@ export default async function handler(req, res) {
                     return;
                 }
                 for (const key in files) {
-                    if (files[key]?.[0]?.filepath) {
-                        uploadFile(file.data.id, files[key][0]?.filepath, files[key]?.[0]?.mimetype, `${key.toUpperCase()}.pdf`)
-                    }
+                    FileResponse.data.files.map((drivefile) => {
+                        if (drivefile?.name === `${key.toUpperCase()}.pdf`) {
+                            deleteObject(drivefile?.id);
+                        }
+                        if (files[key]?.[0]?.filepath) {
+                            uploadFile(folderId, files[key][0]?.filepath, files[key]?.[0]?.mimetype, `${key.toUpperCase()}.pdf`)
+                        }
+                    })
                 }
                 res.status(200).json({ message: 'File uploaded successfully' });
             });

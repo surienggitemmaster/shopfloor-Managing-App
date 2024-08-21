@@ -90,6 +90,19 @@ const ProductPage = () => {
     }
   };
 
+
+  const handleDownload = () => {
+    const downloadUrl = `https://drive.usercontent.google.com/uc?id=${selectfileId}&authuser=0&export=download`;
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+
+    // Trigger the download
+    link.click();
+  };
+
   const onDeleteProduct = (folderName) => {
     const toastId = toast.loading('Deleting item...')
     fetch(`/api/item/edit?folderName=${folderName}`, {

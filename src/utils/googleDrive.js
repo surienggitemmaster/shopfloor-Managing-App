@@ -102,7 +102,7 @@ export const updateFile = async (fileId, filePath, mimeType) => {
         body: fs.createReadStream(filePath),
     };
     const drive = await getDriveService();
-
+    console.log("This is ----", fileId)
     try {
         const file = await drive.files.update({
             fileId: fileId,
