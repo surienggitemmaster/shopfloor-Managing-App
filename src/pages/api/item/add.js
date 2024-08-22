@@ -53,8 +53,13 @@ export default async function handler(req, res) {
                     return;
                 }
                 for (const key in files) {
-                    if (files[key]?.[0]?.filepath) {
-                        uploadFile(file.data.id, files[key][0]?.filepath, files[key]?.[0]?.mimetype, `${key.toUpperCase()}.pdf`)
+                    if (key == "Other") {
+                        for (const index in files[key]) {
+                            uploadFile(file.data.id, files[key][index]?.filepath, files[key]?.[index]?.mimetype, files[key]?.[index]?.originalFilename)
+                        }
+                    }
+                    else if (files[key]?.[0]?.filepath) {
+                        uploadFile(file.data.id, files[key][0]?.filepath, files[key]?.[0]?.mimetype, `${key}.${files[key]?.[0]?.originalFilename.split(".")[1]}`)
                     }
                 }
                 res.status(200).json({ message: 'File uploaded successfully' });

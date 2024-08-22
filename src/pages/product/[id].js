@@ -146,13 +146,13 @@ const ProductPage = () => {
 
   // to filter other files in the files state
   const fieldsToExclude = [
-    "DRAWING",
-    "CUSTOMER_COMPLAINT",
-    "PHOTO",
-    "SELLER_DETAILS",
-    "PURCHASE_DETAILS",
-    "INSPECTION_DETAILS",
-    "PROCESS"
+    "drawing",
+    "customerComplaint",
+    "photo",
+    "billOfMaterial",
+    "rateDetails",
+    "inspectionDetails",
+    "process"
   ];
 
   const otherFiles = Object.keys(files).filter(fileName => !fieldsToExclude.includes(fileName));

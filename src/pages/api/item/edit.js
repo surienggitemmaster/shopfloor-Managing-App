@@ -48,6 +48,7 @@ export default async function handler(req, res) {
 
         // Step 2: Modify the xlsx file
         await removeRowByProductId(filePath, folderName);
+
         await modifyXlsx(filePath, folderName, productName, sellingPrice, presentStock);
 
         // Step 3: Upload the modified file back to Google Drive
@@ -62,13 +63,19 @@ export default async function handler(req, res) {
                 }
                 for (const key in files) {
                     FileResponse.data.files.map((drivefile) => {
-                        if (drivefile?.name === `${key.toUpperCase()}.pdf`) {
+                        if ((drivefile?.name).split(".")[0] === `${key}`) {
                             deleteObject(drivefile?.id);
                         }
-                        if (files[key]?.[0]?.filepath) {
-                            uploadFile(folderId, files[key][0]?.filepath, files[key]?.[0]?.mimetype, `${key.toUpperCase()}.pdf`)
-                        }
                     })
+                    if (key === "Other") {
+                        for (const index in files[key]) {
+                            uploadFile(folderId, files[key][index]?.filepath, files[key]?.[index]?.mimetype, files[key]?.[index]?.originalFilename)
+                        }
+                    }
+                    else if (files[key]?.[0]?.filepath) {
+                        uploadFile(folderId, files[key][0]?.filepath, files[key]?.[0]?.mimetype, `${key}.${files[key]?.[0]?.originalFilename.split(".")[1]}`)
+                    }
+
                 }
                 res.status(200).json({ message: 'File uploaded successfully' });
             });

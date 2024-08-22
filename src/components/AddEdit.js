@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,6 +12,13 @@ function AddEdit({ productData, edit, isOpen, onClose }) {
   const { register, reset, formState: { errors }, handleSubmit } = useForm({
     defaultValues: edit && { ...productData }
   });
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if ((session?.user?.name != 'Admin User')) {
+      router.push('/'); // Redirect if not admin
+    }
+  }, [session, status]);
 
   useEffect(() => {
     if (edit && productData) {
@@ -24,12 +32,15 @@ function AddEdit({ productData, edit, isOpen, onClose }) {
   const onSubmit = async (data) => {
     if (edit) {
       const formData = new FormData();
-      const obj = ['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint']
+      const obj = ['photo', 'drawing', 'process', 'billOfMaterial', 'rateDetails', 'inspectionDetails', 'customerComplaint']
       obj.map((item) => {
         if (data?.[item]?.[0]) {
           formData.append(item, data?.[item]?.[0])
         }
       })
+      for (let i = 0; i < data?.["Other"].length; i++) {
+        formData.append("Other", data?.["Other"][i]);
+      }
       const toastId = toast.loading("Updating item...");
       try {
         const response = await fetch(`/api/item/edit?folderName=${data.productId}&productName=${data.productName}&sellingPrice=${data.sellingPrice}&presentStock=${data.presentStock}`, {
@@ -53,12 +64,16 @@ function AddEdit({ productData, edit, isOpen, onClose }) {
       }
     } else {
       const formData = new FormData();
-      const obj = ['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint']
+      const obj = ['photo', 'drawing', 'process', 'billOfMaterial', 'rateDetails', 'inspectionDetails', 'customerComplaint']
       obj.map((item) => {
         if (data?.[item]?.[0]) {
           formData.append(item, data?.[item]?.[0])
         }
       })
+
+      for (let i = 0; i < data?.["Other"].length; i++) {
+        formData.append("Other", data?.["Other"][i]);
+      }
       const toastId = toast.loading("Adding new item...");
       try {
         const response = await fetch(`/api/item/add?folderName=${data.productId}&productName=${data.productName}&sellingPrice=${data.sellingPrice}&presentStock=${data.presentStock}`, {
