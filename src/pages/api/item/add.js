@@ -31,8 +31,11 @@ export default async function handler(req, res) {
         await downloadXLS(xlsxFile, filePath);
 
         // Step 2: Modify the xlsx file
-        await modifyXlsx(filePath, folderName, productName, sellingPrice, presentStock);
-
+        try {
+            await modifyXlsx(filePath, folderName, productName, sellingPrice, presentStock, true);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
         // Step 3: Upload the modified file back to Google Drive
         const mimeType = 'application/vnd.google-apps.spreadsheet';
         await uploadxl(filePath, mimeType, xlsxFile);

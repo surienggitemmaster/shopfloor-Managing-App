@@ -54,7 +54,8 @@ function AddEdit({ productData, edit, isOpen, onClose }) {
           window.location.reload();
         }
         if (response.status === 500) {
-          toast.error('Something went wrong.!');
+          console.log("resp", response)
+          toast.error(response?.error ? response?.error : 'Something went wrong.!');
         }
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
@@ -88,6 +89,9 @@ function AddEdit({ productData, edit, isOpen, onClose }) {
         }
         if (response.status === 500) {
           toast.error('Something went wrong.!');
+        }
+        if (response.status === 400) {
+          toast.error('Product Id is already existing!');
         }
       } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);

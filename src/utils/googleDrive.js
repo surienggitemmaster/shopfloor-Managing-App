@@ -181,25 +181,43 @@ export const uploadxl = async (filePath, mimeType, fileId) => {
 };
 
 // Function to modify the xlsx file
-export const modifyXlsx = async (filePath, productId, productName, sellingPrice, presentStock) => {
+export const modifyXlsx = async (filePath, productId, productName, sellingPrice, presentStock, add = false) => {
     const workbook = XLSX.readFile(filePath);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
     const range = XLSX.utils.decode_range(sheet['!ref']);
-    const lastRow = range.e.r; // Last row index (0-based)
+    let productExists = false;
 
-    // Add a new row of data
-    const newRow = [productId, productName, sellingPrice, presentStock];
-    const newRowIndex = lastRow + 1;
+    // Iterate through each row to check if the productId already exists
+    if (add === true) {
+        for (let row = range.s.r; row <= range.e.r; row++) {
+            const cell = sheet[XLSX.utils.encode_cell({ r: row, c: 0 })]; // Assuming productId is in the first column
+            if (cell && cell.v === productId) {
+                productExists = true;
+                break;
+            }
+        }
+    }
 
-    // Create a new row and shift the previous range
-    newRow.forEach((value, i) => {
-        sheet[XLSX.utils.encode_cell({ r: newRowIndex, c: i })] = { v: value };
-    });
+    if (productExists) {
+        // Throw an error if the productId already exists
+        throw new Error(`Product ID ${productId} already exists.`);
+    } else {
+        const lastRow = range.e.r; // Last row index (0-based)
 
-    // Update the range to include the new row
-    range.e.r = newRowIndex;
-    sheet['!ref'] = XLSX.utils.encode_range(range);
+        // Add a new row of data
+        const newRow = [productId, productName, sellingPrice, presentStock];
+        const newRowIndex = lastRow + 1;
 
-    XLSX.writeFile(workbook, filePath);
+        // Create a new row and shift the previous range
+        newRow.forEach((value, i) => {
+            sheet[XLSX.utils.encode_cell({ r: newRowIndex, c: i })] = { v: value };
+        });
+
+        // Update the range to include the new row
+        range.e.r = newRowIndex;
+        sheet['!ref'] = XLSX.utils.encode_range(range);
+
+        XLSX.writeFile(workbook, filePath);
+    }
 };
