@@ -26,6 +26,7 @@ export default async function handler(req, res) {
         const listResponse = await drive.files.list({
             q: `'${mainFolder}' in parents`,
             fields: 'files(id, name, mimeType)',
+            pageSize: 1000,
         });
 
         let folderId;
