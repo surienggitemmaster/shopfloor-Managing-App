@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import axios from 'axios';
 import PDFViewer from '@/components/Pdfviewer';
 import Loader from '@/components/Loader';
+import AddEdit from '@/components/AddEdit';
 import toast from 'react-hot-toast';
 import { Inter } from "next/font/google";
 
@@ -19,10 +20,15 @@ const ProductPage = () => {
   const [files, setFiles] = useState([]);
   const [selectfileId, setSelectfileId] = useState(null);
   const { id, name, price, stock } = router.query;
-  const [activeTab, setActiveTab] = useState(null);
+  const [activeTab, setActiveTab] = useState('photo'); // Set photo as default
   //const { productData } = useProductContext();
   const viewOnly = true;
   const [isLoading, setIsLoading] = useState(false);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [editProductData, setEditProductData] = useState(null);
 
   useEffect(() => {
     if ((status != "loading") && (!session)) {
@@ -71,7 +77,7 @@ const ProductPage = () => {
       setFiles(tempObj)
       localStorage.setItem('productFiles', JSON.stringify(tempObj));
       setSelectfileId(tempObj?.PHOTO);
-      setActiveTab('photo');
+      setActiveTab('photo'); // Ensure photo is set as default
     } catch (error) {
       console.error('Error fetching Excel data:', error);
     }
@@ -102,6 +108,28 @@ const ProductPage = () => {
     setSelectfileId(e.value)
     setActiveTab(e.key)
   }
+
+  const openAddModal = () => {
+    setModalMode('add');
+    setEditProductData(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = () => {
+    setModalMode('edit');
+    setEditProductData({
+      productId: id,
+      productName: name,
+      sellingPrice: price,
+      presentStock: stock
+    });
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditProductData(null);
+  };
 
   // to filter other files in the files state
   const fieldsToExclude = [
@@ -148,13 +176,13 @@ const ProductPage = () => {
           sidebarOpenForMobile ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="h-full bg-white border-r border-gray-200 shadow-lg">
+        <div className="h-full sidebar-container shadow-xl">
           {/* Mobile close button */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Product Details</h2>
+          <div className="lg:hidden sidebar-header flex items-center justify-between p-4">
+            <h2 className="text-lg font-semibold">Product Details</h2>
             <button 
               onClick={() => setSidebarOpenForMobile(false)}
-              className="p-2 rounded-lg hover:bg-gray-100"
+              className="p-2 rounded-lg hover:bg-white/20 transition-colors duration-200"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -163,24 +191,24 @@ const ProductPage = () => {
           </div>
 
           {/* Product Info Card */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 border-b border-blue-200 bg-white/50 backdrop-blur-sm">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Product ID</span>
-                <span className="text-sm font-semibold text-gray-900">{id}</span>
+                <span className="text-sm font-medium text-gray-600">Product ID</span>
+                <span className="text-sm font-semibold text-gray-900 bg-white px-2 py-1 rounded">{id}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Product Name</span>
-                <span className="text-sm font-semibold text-gray-900">{name}</span>
+                <span className="text-sm font-medium text-gray-600">Product Name</span>
+                <span className="text-sm font-semibold text-gray-900 bg-white px-2 py-1 rounded">{name}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Selling Price</span>
+                <span className="text-sm font-medium text-gray-600">Selling Price</span>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   ${price}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-500">Stock Level</span>
+                <span className="text-sm font-medium text-gray-600">Stock Level</span>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   {stock} units
                 </span>
@@ -190,15 +218,15 @@ const ProductPage = () => {
 
           {/* Navigation */}
           <div className="p-4">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Documents</h3>
-            <nav className="space-y-1">
+            <h3 className="sidebar-section-title">Documents</h3>
+            <nav className="space-y-2">
               {sidebarItems.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => handleFileId({ key: item.key, value: item.value })}
                   className={`sidebar-item w-full ${activeTab === item.key ? 'active' : ''}`}
                 >
-                  <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="sidebar-icon" fill="currentColor" viewBox="0 0 24 24">
                     {getIcon(item.icon)}
                   </svg>
                   <span>{item.label}</span>
@@ -211,7 +239,7 @@ const ProductPage = () => {
                     onClick={() => setExpandOtherFiles(!expandOtherFiles)}
                     className="sidebar-item w-full"
                   >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                     <span>Other Files</span>
@@ -275,13 +303,13 @@ const ProductPage = () => {
             {session?.user?.name == 'Admin User' && (
               <>
                 <button 
-                  onClick={() => router.push('/product/add')} 
+                  onClick={openAddModal} 
                   className="btn-secondary text-sm"
                 >
                   Add
                 </button>
                 <button 
-                  onClick={() => router.push('/product/edit')} 
+                  onClick={openEditModal} 
                   className="btn-secondary text-sm"
                 >
                   Edit
@@ -300,6 +328,14 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Add/Edit Modal */}
+      <AddEdit
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        edit={modalMode === 'edit'}
+        productData={editProductData}
+      />
     </div>
   )
 }

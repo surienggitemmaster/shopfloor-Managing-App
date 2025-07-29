@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Header from "@/components/Header";
+import AddEdit from "@/components/AddEdit";
 import axios from 'axios';
 import Loader from "@/components/Loader";
 import { useProductContext } from "@/contexts/ProductContext";
@@ -24,6 +25,10 @@ export default function Home() {
   const [totalPages, setTotalPages] = useState(1);
   const { setProductData } = useProductContext();
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [editProductData, setEditProductData] = useState(null);
 
   useEffect(() => {
     if ((status != "loading") && (!session)) {
@@ -95,6 +100,23 @@ export default function Home() {
     setCurrentPage(pageNumber);
   };
 
+  const openAddModal = () => {
+    setModalMode('add');
+    setEditProductData(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (productData) => {
+    setModalMode('edit');
+    setEditProductData(productData);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditProductData(null);
+  };
+
   return (
     <div className={`min-h-screen bg-gray-50 ${inter.className}`}>
       <Header />
@@ -126,7 +148,7 @@ export default function Home() {
               
               {session?.user?.name == 'Admin User' && (
                 <button 
-                  onClick={() => router.push(`/product/add`)} 
+                  onClick={openAddModal} 
                   className="btn-primary flex items-center space-x-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,31 +171,75 @@ export default function Home() {
                         <th className="table-header">Product Name</th>
                         <th className="table-header">Selling Price</th>
                         <th className="table-header">Present Stock</th>
+                        {session?.user?.name == 'Admin User' && (
+                          <th className="table-header">Actions</th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {records?.map((row) => (
                         <tr 
-                          onClick={() => handleClick(row)} 
                           key={row.PRODUCT_ID} 
                           className="table-row-hover"
                         >
-                          <td className="table-cell font-medium text-gray-900">
+                          <td 
+                            className="table-cell font-medium text-gray-900 cursor-pointer"
+                            onClick={() => handleClick(row)}
+                          >
                             {row.PRODUCT_ID}
                           </td>
-                          <td className="table-cell text-gray-900">
+                          <td 
+                            className="table-cell text-gray-900 cursor-pointer"
+                            onClick={() => handleClick(row)}
+                          >
                             {row.PRODUCT_NAME}
                           </td>
-                          <td className="table-cell">
+                          <td 
+                            className="table-cell cursor-pointer"
+                            onClick={() => handleClick(row)}
+                          >
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               ${row.SELLING_PRICE}
                             </span>
                           </td>
-                          <td className="table-cell">
+                          <td 
+                            className="table-cell cursor-pointer"
+                            onClick={() => handleClick(row)}
+                          >
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                               {row.PRESENT_STOCK} units
                             </span>
                           </td>
+                          {session?.user?.name == 'Admin User' && (
+                            <td className="table-cell">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => openEditModal({
+                                    productId: row.PRODUCT_ID,
+                                    productName: row.PRODUCT_NAME,
+                                    sellingPrice: row.SELLING_PRICE,
+                                    presentStock: row.PRESENT_STOCK
+                                  })}
+                                  className="p-1 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                                  title="Edit"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => handleClick(row)}
+                                  className="p-1 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+                                  title="View Details"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -230,6 +296,14 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Add/Edit Modal */}
+      <AddEdit
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        edit={modalMode === 'edit'}
+        productData={editProductData}
+      />
     </div>
   );
 }

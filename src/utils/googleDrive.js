@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import XLSX from 'xlsx';
 
-const keyFilePath = path.join(process.cwd(), 'service-account.json');
+const keyFilePath = path.join(process.cwd(), 'service.json');
 const credentials = JSON.parse(fs.readFileSync(keyFilePath, 'utf8'));
 
 const auth = new google.auth.GoogleAuth({
