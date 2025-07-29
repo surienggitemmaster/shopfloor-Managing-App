@@ -1,4 +1,4 @@
-import { getDriveService, uploadFile, downloadXLS, uploadxl, removeRowByProductId, deleteObject, modifyXlsx, mainFolder, xlsxFile, updateFile } from "../../../utils/googledrive";
+import { getDriveService, uploadFile, downloadXLS, uploadxl, removeRowByProductId, deleteObject, modifyXlsx, mainFolder, xlsxFile, updateFile } from "@/utils/googledrive";
 import { IncomingForm } from 'formidable';
 import path from 'path';
 import fs from 'fs';

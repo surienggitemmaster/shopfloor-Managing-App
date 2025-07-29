@@ -1,4 +1,4 @@
-import { getDriveService } from "../../utils/googledrive";
+import { getDriveService } from "@/utils/googledrive";
 
 export default async function handler(req, res) {
     const drive = await getDriveService()

@@ -1,4 +1,4 @@
-import { downloadFile } from '../../utils/googledrive';
+import { downloadFile } from '@/utils/googledrive';
 import XLSX from 'xlsx';
 
 export default async (req, res) => {
