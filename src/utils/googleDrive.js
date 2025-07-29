@@ -1,26 +1,10 @@
 import { google } from 'googleapis';
+import path from 'path';
 import fs from 'fs';
 import XLSX from 'xlsx';
 
-// Parse service account credentials from environment variable
-let credentials;
-try {
-    if (!process.env.SERVICE_ACCOUNT) {
-        throw new Error('SERVICE_ACCOUNT environment variable is not set');
-    }
-    
-    // Debug: Log the first 100 characters of the environment variable
-    console.log('SERVICE_ACCOUNT env var length:', process.env.SERVICE_ACCOUNT.length);
-    console.log('SERVICE_ACCOUNT env var preview:', process.env.SERVICE_ACCOUNT.substring(0, 100));
-    
-    credentials = JSON.parse(process.env.SERVICE_ACCOUNT);
-} catch (error) {
-    console.error('Error parsing SERVICE_ACCOUNT environment variable:', error.message);
-    console.error('SERVICE_ACCOUNT env var length:', process.env.SERVICE_ACCOUNT?.length || 0);
-    console.error('SERVICE_ACCOUNT env var preview:', process.env.SERVICE_ACCOUNT?.substring(0, 200) || 'undefined');
-    console.error('Make sure SERVICE_ACCOUNT is set with valid JSON service account credentials');
-    throw new Error('Invalid SERVICE_ACCOUNT environment variable. Please check your configuration.');
-}
+const keyFilePath = path.join(process.cwd(), 'service.json');
+const credentials = JSON.parse(fs.readFileSync(keyFilePath, 'utf8'));
 
 const auth = new google.auth.GoogleAuth({
     credentials,
