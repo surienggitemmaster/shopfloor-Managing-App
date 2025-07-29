@@ -44,36 +44,67 @@ export default function Signin() {
   }
 
   return (
-    <section className={`bg-slate-100 ${inter.className} `}>
-      <div className="flex items-center justify-center mx-auto min-h-screen">
-        <div className="w-full bg-white border border-slate-300 rounded-md shadow-sm md:mt-0 sm:max-w-md xl:p-0">
-          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h3 className="mb-6 text-2xl font-bold leading-tight text-center">
-              ShopFloor Managing App
-            </h3>
-            <h1 className="text-base text-gray-600 font-semibold text-center">
-              Enter credentials to sign in
-            </h1>
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-              {/* <input name="csrfToken" type="hidden" defaultValue={csrfToken} /> */}
-              <div>
-                <label htmlFor="username" className="block mb-2 text-sm font-medium ">Username</label>
-                <input type="text" name="username" id="username" value={credentials.username} onChange={handleChange} className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="username" />
-
+    <div className={`min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 ${inter.className}`}>
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="w-full max-w-md">
+          <div className="card p-8">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
               </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+              <p className="text-gray-600">Sign in to your ShopFloor Manager account</p>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium ">Password</label>
-                <input type="password" name="password" id="password" value={credentials.password} onChange={handleChange} placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" />
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                  Username
+                </label>
+                <input 
+                  type="text" 
+                  name="username" 
+                  id="username" 
+                  value={credentials.username} 
+                  onChange={handleChange} 
+                  className="input-field" 
+                  placeholder="Enter your username" 
+                />
               </div>
-              {validationErrors && (<p className="text-red-500 text-sm mt-4">Please fill all the fields..</p>)}
-              {/* <div className="flex items-center justify-between">
-                <Link to="/forgot" className="text-sm font-medium text-primary-600 hover:underline">Forgot password?</Link>
-              </div> */}
-              <button type="submit" className="w-full text-white bg-blue-500 hover:bg-blue-700 font-medium rounded-md text-sm px-5 py-2.5 text-center">Sign in</button>
+              
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input 
+                  type="password" 
+                  name="password" 
+                  id="password" 
+                  value={credentials.password} 
+                  onChange={handleChange} 
+                  placeholder="Enter your password" 
+                  className="input-field" 
+                />
+              </div>
+              
+              {validationErrors && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-red-600 text-sm">Please fill in all required fields.</p>
+                </div>
+              )}
+              
+              <button 
+                type="submit" 
+                className="w-full btn-primary py-3 text-base font-medium"
+              >
+                Sign In
+              </button>
             </form>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   )
 }

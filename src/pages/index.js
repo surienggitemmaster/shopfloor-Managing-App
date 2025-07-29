@@ -96,87 +96,140 @@ export default function Home() {
   };
 
   return (
-    <main className={`flex-col items-center justify-center min-h-screen bg-gradient-to-tr from-gray-200 to-gray-400 ${inter.className}`}>
+    <div className={`min-h-screen bg-gray-50 ${inter.className}`}>
       <Header />
-      <div className='py-5'>
-        <div className='max-w-4xl mx-auto bg-white md:rounded-md shadow-md'>
-          <div className='p-3 flex gap-5'>
-            <form onSubmit={handleSearch} className='flex flex-auto items-center space-x-2 rounded-md border border-gray-200 bg-gray-100'>
-              <input value={searchInput} onChange={(e) => setSearchInput(e.target.value.toLowerCase())} className='w-full block p-2 bg-gray-100 outline-none text-sm' type='text' placeholder='Search by Product ID or Product Name...' />
-              <button type='submit'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-600 mr-2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-              </button>
-            </form>
-            {session?.user?.name == 'Admin User' &&
-              <button onClick={() => router.push(`/product/add`)} className="bg-blue-500 rounded-md border-blue-400 py-1.5 px-2 text-sm text-white">Add Product</button>}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Product Inventory</h1>
+          <p className="text-gray-600">Manage and view your product catalog</p>
+        </div>
+        
+        <div className="card">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+              <form onSubmit={handleSearch} className="flex-1 max-w-md">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                  </div>
+                  <input 
+                    value={searchInput} 
+                    onChange={(e) => setSearchInput(e.target.value.toLowerCase())} 
+                    className="input-field pl-10" 
+                    type="text" 
+                    placeholder="Search by Product ID or Name..." 
+                  />
+                </div>
+              </form>
+              
+              {session?.user?.name == 'Admin User' && (
+                <button 
+                  onClick={() => router.push(`/product/add`)} 
+                  className="btn-primary flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Add Product</span>
+                </button>
+              )}
+            </div>
           </div>
-          <div className="overflow-x-auto">
+          
+          <div className="overflow-hidden">
             {!isLoading && records ? (
               <>
-                <table className="w-full text-sm text-left text-gray-500">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-200">
-                    <tr>
-                      <th scope="col" className="px-4 py-3 whitespace-nowrap">Product Id</th>
-                      <th scope="col" className="px-4 py-3 whitespace-nowrap">Product name</th>
-                      <th scope="col" className="px-4 py-3 whitespace-nowrap">Selling Price</th>
-                      <th scope="col" className="px-4 py-3 whitespace-nowrap">Present Stock</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records?.map((row) => {
-                      return (
-                        <tr onClick={() => handleClick(row)} key={row.PRODUCT_ID} className="border-b hover:bg-gray-100 cursor-pointer transition-colors duration-200">
-
-                          <th scope='row' className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="table-header">Product ID</th>
+                        <th className="table-header">Product Name</th>
+                        <th className="table-header">Selling Price</th>
+                        <th className="table-header">Present Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {records?.map((row) => (
+                        <tr 
+                          onClick={() => handleClick(row)} 
+                          key={row.PRODUCT_ID} 
+                          className="table-row-hover"
+                        >
+                          <td className="table-cell font-medium text-gray-900">
                             {row.PRODUCT_ID}
-                          </th>
-                          <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.PRODUCT_NAME} </td>
-                          <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.SELLING_PRICE} </td>
-                          <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">{row.PRESENT_STOCK} </td>
-
+                          </td>
+                          <td className="table-cell text-gray-900">
+                            {row.PRODUCT_NAME}
+                          </td>
+                          <td className="table-cell">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              ${row.SELLING_PRICE}
+                            </span>
+                          </td>
+                          <td className="table-cell">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {row.PRESENT_STOCK} units
+                            </span>
+                          </td>
                         </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-                <div className="flex justify-between items-center p-2 space-x-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="p-1 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
-                  </button>
-                  <div className="flex flex-wrap w-3/4 items-center justify-center gap-2">
-                    {Array.from({ length: totalPages }, (_, index) => (
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="bg-white px-6 py-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
                       <button
-                        key={index + 1}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={`size-8 rounded-md ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} hover:bg-gray-300`}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {index + 1}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
                       </button>
-                    ))}
+                      
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: totalPages }, (_, index) => (
+                          <button
+                            key={index + 1}
+                            onClick={() => handlePageChange(index + 1)}
+                            className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                              currentPage === index + 1 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            {index + 1}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    <div className="text-sm text-gray-700">
+                      Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, data.length)} of {data.length} results
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="p-1 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                  </button>
                 </div>
               </>
             ) : <Loader />}
           </div>
         </div>
       </div>
-    </main >
+    </div>
   );
 }

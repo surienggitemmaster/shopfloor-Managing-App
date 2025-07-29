@@ -87,113 +87,144 @@ function AddEdit({ productData, edit }) {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-tr from-gray-200 to-gray-400 p-4 ${inter.className}`}>
-      <div className="max-w-2xl mx-auto bg-white p-6 rounded-md shadow-md border border-gray-300">
-        <h2 className="text-2xl font-bold mb-6">{edit ? "Edit Product" : "Add Product"}</h2>
-        <form onReset={reset} onSubmit={handleSubmit(onSubmit)} className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-          <div>
-            <label htmlFor="product-id" className="block text-sm font-medium text-gray-700">
-              Product Id
-            </label>
-            <input
-              {...register("productId", { required: "product id is required." })}
-              type="text"
-              id="product-id"
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-              disabled={edit}  
-            />
-            {errors.productId && <span className="text-red-500 text-sm mt-1">{errors.productId.message}</span>}
-          </div>
-          <div>
-            <label htmlFor="product-name" className="block text-sm font-medium text-gray-700">
-              Product Name
-            </label>
-            <input
-              {...register("productName", { required: "product name is required." })}
-              type="text"
-              id="product-name"
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            />
-            {errors.productName && <span className="text-red-500 text-sm mt-1">{errors.productName.message}</span>}
-          </div>
-          <div>
-            <label htmlFor="selling-price" className="block text-sm font-medium text-gray-700">
-              Selling Price
-            </label>
-            <input
-              {...register("sellingPrice", {
-                pattern: {
-                  value: /^\d+(\.\d{1,2})?$/,
-                  message: "only numbers allowed upto 2 decimal places."
-                }
-              })}
-              type="text"
-              id="selling-price"
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            />
-            {errors.sellingPrice && <span className="text-red-500 text-sm mt-1">{errors.sellingPrice.message}</span>}
-          </div>
-          <div>
-            <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
-              Present Stock
-            </label>
-            <input
-              {...register("presentStock", {
-                pattern: {
-                  value: /^\d+$/,
-                  message: "only numbers are allowed."
-                }
-              })}
-              type="text"
-              id="stock"
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            />
-            {errors.presentStock && <span className="text-red-500 text-sm mt-1">{errors.presentStock.message}</span>}
-          </div>
-
-          {/* File Upload Fields */}
-          {['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint'].map((field, index) => (
-            <div key={index}>
-              <label htmlFor={field} className="block text-sm font-medium text-gray-700">
-                {camelToTitleCase(field)}
-              </label>
-              {/* <div className="mt-1 relative"> */}
-              <input
-                {...register(field)}
-                type="file"
-                id={field}
-                // ${edit && 'sr-only'}
-                className={` mt-1 block w-full p-2 border text-sm border-gray-300 rounded-md`}
-              //onChange={(e) => handleFileChange(e, field)}
-              />
-              {/* <div className="flex items-center">
-                                    <span className="flex-grow px-2 py-2 text-sm text-gray-500 border border-gray-300 rounded-md">
-                                        {fileNames?.field || 'No file chosen'}
-                                    </span>
-                                    <label
-                                        htmlFor={field}
-                                        className="ml-2 px-3 py-2 bg-blue-500 text-white text-sm font-medium rounded-md cursor-pointer hover:bg-blue-600"
-                                    >
-                                        Choose File
-                                    </label>
-                                </div> */}
-              {/* </div> */}
+    <div className={`min-h-screen bg-gray-50 py-8 ${inter.className}`}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {edit ? "Edit Product" : "Add New Product"}
+          </h1>
+          <p className="text-gray-600">
+            {edit ? "Update product information and files" : "Create a new product entry with all required details"}
+          </p>
+        </div>
+        
+        <div className="card p-8">
+          <form onReset={reset} onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Basic Information Section */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="product-id" className="block text-sm font-medium text-gray-700 mb-2">
+                    Product ID
+                  </label>
+                  <input
+                    {...register("productId", { required: "Product ID is required." })}
+                    type="text"
+                    id="product-id"
+                    className={`input-field ${edit ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    disabled={edit}
+                    placeholder="Enter product ID"
+                  />
+                  {errors.productId && (
+                    <p className="text-red-600 text-sm mt-1">{errors.productId.message}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label htmlFor="product-name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Product Name
+                  </label>
+                  <input
+                    {...register("productName", { required: "Product name is required." })}
+                    type="text"
+                    id="product-name"
+                    className="input-field"
+                    placeholder="Enter product name"
+                  />
+                  {errors.productName && (
+                    <p className="text-red-600 text-sm mt-1">{errors.productName.message}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label htmlFor="selling-price" className="block text-sm font-medium text-gray-700 mb-2">
+                    Selling Price
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">$</span>
+                    </div>
+                    <input
+                      {...register("sellingPrice", {
+                        pattern: {
+                          value: /^\d+(\.\d{1,2})?$/,
+                          message: "Only numbers allowed up to 2 decimal places."
+                        }
+                      })}
+                      type="text"
+                      id="selling-price"
+                      className="input-field pl-7"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {errors.sellingPrice && (
+                    <p className="text-red-600 text-sm mt-1">{errors.sellingPrice.message}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
+                    Present Stock
+                  </label>
+                  <input
+                    {...register("presentStock", {
+                      pattern: {
+                        value: /^\d+$/,
+                        message: "Only numbers are allowed."
+                      }
+                    })}
+                    type="text"
+                    id="stock"
+                    className="input-field"
+                    placeholder="Enter stock quantity"
+                  />
+                  {errors.presentStock && (
+                    <p className="text-red-600 text-sm mt-1">{errors.presentStock.message}</p>
+                  )}
+                </div>
+              </div>
             </div>
-          ))}
-          <div></div>
-          <button
-            type="reset"
-            className="w-full bg-red-600 text-white p-2 rounded-md hover:bg-red-700"
-          >
-            Reset
-          </button>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
-          >
-            Submit
-          </button>
-        </form>
+
+            {/* File Upload Section */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Documents & Files</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {['photo', 'drawing', 'process', 'seller_Details', 'purchase_Details', 'inspection_Details', 'customer_Complaint'].map((field, index) => (
+                  <div key={index} className="space-y-2">
+                    <label htmlFor={field} className="block text-sm font-medium text-gray-700">
+                      {camelToTitleCase(field)}
+                    </label>
+                    <div className="relative">
+                      <input
+                        {...register(field)}
+                        type="file"
+                        id={field}
+                        className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+              <button
+                type="reset"
+                className="btn-secondary flex-1"
+              >
+                Reset Form
+              </button>
+              <button
+                type="submit"
+                className="btn-primary flex-1"
+              >
+                {edit ? "Update Product" : "Create Product"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )
