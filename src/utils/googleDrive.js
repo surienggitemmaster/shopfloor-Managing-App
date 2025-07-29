@@ -1,21 +1,157 @@
 import { google } from 'googleapis';
-import path from 'path';
-import fs from 'fs';
 import XLSX from 'xlsx';
 
-const keyFilePath = path.join(process.cwd(), 'service.json');
-const credentials = JSON.parse(fs.readFileSync(keyFilePath, 'utf8'));
+// Improved error handling for service account credentials from environment variable
+let credentials;
+try {
+    const serviceAccountData = process.env.SERVICE_ACCOUNT;
 
+    if (!serviceAccountData) {
+        throw new Error('SERVICE_ACCOUNT environment variable is not set');
+    }
+
+    credentials = JSON.parse(serviceAccountData);
+
+    // Validate required fields
+    if (!credentials.client_email || !credentials.private_key || !credentials.project_id) {
+        throw new Error('Missing required service account fields in SERVICE_ACCOUNT environment variable');
+    }
+} catch (error) {
+    console.error('Error parsing service account credentials from environment variable:', error.message);
+    throw new Error('Failed to load service account credentials from SERVICE_ACCOUNT environment variable');
+}
+
+// Create auth client with improved configuration and JWT handling
 const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/drive'],
+    // Add timeout and retry configuration
+    timeout: 30000,
 });
+
+// Enhanced authentication with JWT signature handling
+export const createAuthenticatedClient = async () => {
+    try {
+        console.log('🔐 Attempting to create authenticated client...');
+        console.log('📧 Service Account Email:', credentials.client_email);
+        console.log('🆔 Project ID:', credentials.project_id);
+
+        const authClient = await auth.getClient();
+        console.log('✅ Successfully created auth client');
+
+        // Set up automatic token refresh
+        authClient.on('tokens', (tokens) => {
+            if (tokens.refresh_token) {
+                console.log('🔄 Token refreshed successfully');
+            }
+        });
+
+        return authClient;
+    } catch (error) {
+        console.error('❌ Error creating authenticated client:', error.message);
+        console.error('🔍 Error details:', {
+            name: error.name,
+            code: error.code,
+            status: error.status,
+            message: error.message,
+            stack: error.stack
+        });
+
+        // Handle specific JWT signature errors
+        if (error.message.includes('invalid_grant') || error.message.includes('Invalid JWT Signature')) {
+            console.error('🚨 JWT Signature error detected. Attempting to resolve...');
+
+            // Try to create a new auth client with fresh credentials
+            try {
+                console.log('🔄 Attempting retry with fresh credentials...');
+                const freshAuth = new google.auth.GoogleAuth({
+                    credentials,
+                    scopes: ['https://www.googleapis.com/auth/drive'],
+                    timeout: 60000, // Longer timeout for retry
+                });
+
+                const freshClient = await freshAuth.getClient();
+                console.log('✅ Successfully created fresh authenticated client');
+                return freshClient;
+            } catch (retryError) {
+                console.error('❌ Retry failed:', retryError.message);
+                console.error('🔍 Retry error details:', {
+                    name: retryError.name,
+                    code: retryError.code,
+                    status: retryError.status,
+                    message: retryError.message
+                });
+                throw new Error(`Authentication failed after retry: ${retryError.message}`);
+            }
+        }
+
+        throw error;
+    }
+};
+
+// Test authentication function with detailed error reporting
+export const testAuth = async () => {
+    try {
+        console.log('🧪 Testing Google authentication...');
+        console.log('🔐 Using SERVICE_ACCOUNT environment variable');
+        console.log('📧 Service Account Email:', credentials.client_email);
+        console.log('🆔 Project ID:', credentials.project_id);
+
+        const authClient = await createAuthenticatedClient();
+        const projectId = await authClient.getProjectId();
+        console.log('✅ Authentication successful. Project ID:', projectId);
+        return true;
+    } catch (error) {
+        console.error('❌ Authentication failed:', error.message);
+        console.error('🔍 Full error details:', {
+            name: error.name,
+            code: error.code,
+            status: error.status,
+            message: error.message,
+            stack: error.stack
+        });
+
+        // Provide specific guidance based on error type
+        if (error.message.includes('invalid_grant')) {
+            console.error('🚨 This usually means:');
+            console.error('   1. Service account key has expired');
+            console.error('   2. System clock is not synchronized');
+            console.error('   3. Service account key is corrupted');
+            console.error('   4. Service account has been deleted or disabled');
+            console.error('   5. The key has been revoked');
+        } else if (error.message.includes('SERVICE_ACCOUNT environment variable is not set')) {
+            console.error('🔧 Environment variable error - check if SERVICE_ACCOUNT is set');
+        } else if (error.message.includes('Unexpected token')) {
+            console.error('📄 JSON parsing error - check SERVICE_ACCOUNT environment variable format');
+        }
+
+        return false;
+    }
+};
 
 export const mainFolder = "1QRte-54NhRbh_SCtofIor6ccBA_8aVYT"
 export const xlsxFile = "1aPun_wNfE1s8E3BHzwq9WImBVvKdxHgcdxYiO-0-sNk"
 
+// Updated service account email
+export const SERVICE_ACCOUNT_EMAIL = "shop-manager-account@php-drive-api-433107.iam.gserviceaccount.com"
+
 export const getDriveService = async () => {
-    return google.drive({ version: 'v3', auth });
+    try {
+        console.log('🔐 Creating Drive service...');
+        const authClient = await auth.getClient();
+        console.log('✅ Auth client created successfully');
+
+        return google.drive({ version: 'v3', auth: authClient });
+    } catch (error) {
+        console.error('❌ Error getting Drive service:', error.message);
+        console.error('🔍 Error details:', {
+            name: error.name,
+            code: error.code,
+            status: error.status,
+            message: error.message
+        });
+        throw error;
+    }
 };
 
 export const listFiles = async () => {
@@ -33,17 +169,32 @@ export const deleteObject = async (fileId) => {
 };
 
 export const downloadFile = async (fileId, mimeType) => {
-    const drive = await getDriveService();
-    let response;
+    try {
+        const drive = await getDriveService();
+        let response;
 
-    if (mimeType.startsWith('application/vnd.google-apps')) {
-        const exportMimeType = mimeType === 'application/vnd.google-apps.spreadsheet' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/pdf';
-        response = await drive.files.export({ fileId, mimeType: exportMimeType }, { responseType: 'stream' });
-    } else {
-        response = await drive.files.get({ fileId, alt: 'media' }, { responseType: 'stream' });
+        if (mimeType.startsWith('application/vnd.google-apps')) {
+            const exportMimeType = mimeType === 'application/vnd.google-apps.spreadsheet' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/pdf';
+            response = await drive.files.export({ fileId, mimeType: exportMimeType }, { responseType: 'stream' });
+        } else {
+            response = await drive.files.get({ fileId, alt: 'media' }, { responseType: 'stream' });
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error downloading file:', error.message);
+
+        // Handle specific JWT signature errors
+        if (error.message.includes('invalid_grant') || error.message.includes('Invalid JWT Signature')) {
+            console.error('JWT Signature error detected. This could be due to:');
+            console.error('1. Expired service account key');
+            console.error('2. Clock skew between server and Google');
+            console.error('3. Corrupted service account credentials');
+            throw new Error('Authentication failed: Invalid JWT signature. Please check your service account configuration.');
+        }
+
+        throw error;
     }
-
-    return response.data;
 };
 
 
@@ -69,16 +220,18 @@ export const createFolder = async (folderName) => {
 };
 
 export const uploadFile = async (folderId, filePath, mimeType, newFileName) => {
+    const fs = await import('fs');
+    const path = await import('path');
 
     console.log(folderId, filePath, mimeType, newFileName);
     const fileMetadata = {
-        name: newFileName || path.basename(filePath),
+        name: newFileName || path.default.basename(filePath),
         parents: [folderId],
     };
 
     const media = {
         mimeType: mimeType,
-        body: fs.createReadStream(filePath),
+        body: fs.default.createReadStream(filePath),
     };
     const drive = await getDriveService();
 
@@ -97,9 +250,11 @@ export const uploadFile = async (folderId, filePath, mimeType, newFileName) => {
 };
 
 export const updateFile = async (fileId, filePath, mimeType) => {
+    const fs = await import('fs');
+
     const media = {
         mimeType: mimeType,
-        body: fs.createReadStream(filePath),
+        body: fs.default.createReadStream(filePath),
     };
     const drive = await getDriveService();
     console.log("This is ----", fileId)
@@ -141,8 +296,9 @@ export const removeRowByProductId = async (filePath, productId) => {
 
 // Function to download file from Google Drive
 export const downloadXLS = async (fileId, destination) => {
+    const fs = await import('fs');
     const drive = await getDriveService();
-    const dest = fs.createWriteStream(destination);
+    const dest = fs.default.createWriteStream(destination);
     const response = await downloadFile(fileId, "application/vnd.google-apps.spreadsheet");
 
     return new Promise((resolve, reject) => {
@@ -165,10 +321,11 @@ export const downloadXLS = async (fileId, destination) => {
 
 // Function to upload file to Google Drive
 export const uploadxl = async (filePath, mimeType, fileId) => {
+    const fs = await import('fs');
     const drive = await getDriveService()
     const media = {
         mimeType: mimeType,
-        body: fs.createReadStream(filePath),
+        body: fs.default.createReadStream(filePath),
     };
 
     const response = await drive.files.update({
